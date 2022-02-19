@@ -3,17 +3,36 @@ import NavBar from "./NavBar";
 
 const Dashboard = () => {
   const [openModel, setOpenModel] = useState(false);
+  const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
+  const [owner, setOwner] = useState("");
+  const [description, setDescription] = useState("");
 
   const [products, setProducts] = useState([]);
 
   const getProducts = async () => {
-    const respose = await fetch("https://192.168.56.102:7085/api/products");
+    const respose = await fetch("https:localhost:7085/api/products");
     console.log(respose);
     setProducts(await respose.json());
   };
 
+  const addProducts = async () => {
+    console.warn(title, subtitle, owner, description);
+    let data = { title, subtitle, owner, description };
+    const respose = await fetch("https://localhost:7085/api/createproduct", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    console.log(respose);
+  };
+
   useEffect(() => {
     getProducts();
+    // addProducts();
   }, []);
 
   return (
@@ -113,7 +132,7 @@ const Dashboard = () => {
                 Product Form
               </h2>
 
-              <form className=" space-y-6" action="#" method="POST">
+              <form className=" space-y-6">
                 <input type="hidden" name="remember" defaultValue="true" />
                 <div className="rounded-md shadow-sm -space-y-px">
                   <div>
@@ -127,6 +146,8 @@ const Dashboard = () => {
                       required
                       className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                       placeholder="Title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
                     />
                   </div>
                   <div>
@@ -140,6 +161,8 @@ const Dashboard = () => {
                       required
                       className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                       placeholder="Subtitle"
+                      value={subtitle}
+                      onChange={(e) => setSubtitle(e.target.value)}
                     />
                   </div>
                   <div>
@@ -153,6 +176,8 @@ const Dashboard = () => {
                       required
                       className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                       placeholder="Owner Name"
+                      value={owner}
+                      onChange={(e) => setOwner(e.target.value)}
                     />
                   </div>
                   <div>
@@ -166,12 +191,15 @@ const Dashboard = () => {
                       required
                       className="appearance-none rounded-none relative block w-full px-3 py-2 border rounded-b-md border-gray-300 placeholder-gray-500 text-gray-900  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                       placeholder="Description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div>
                   <button
+                    onClick={addProducts}
                     type="submit"
                     className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
@@ -213,23 +241,26 @@ const Dashboard = () => {
                     alt="Sunset in the mountains"
                   />
                   <div class="px-6 py-4">
-                    <div class="font-bold text-xl mb-2">The Coldest Sunset</div>
-                    <p class="text-gray-700 text-base">
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                      Voluptatibus quia, nulla! Maiores et perferendis eaque,
-                      exercitationem praesentium nihil.
+                    <div class="font-bold text-xl mb-2">
+                      {currentElement.title}
+                    </div>
+                    <p class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                      Subtitle : {currentElement.subtitle}
+                    </p>
+                    <p class="inline-block bg-gray-200  px-3 py-1 rounded-lg font-semibold text-gray-700 mr-2 mb-2 text-base">
+                      Description : {currentElement.description}
                     </p>
                   </div>
                   <div class="px-6 pt-4 pb-2">
                     <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                      #photography
+                      Owner Name : {currentElement.owner}
                     </span>
-                    <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {/* <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
                       #travel
                     </span>
                     <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
                       #winter
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               );
