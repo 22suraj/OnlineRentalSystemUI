@@ -1,8 +1,41 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   // const history = useHistory();
   // const handleClick = () => history.push('/some-route');
+  const navigate = useNavigate();
+  const [statusMsg, setStatusMsg] = useState(null);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const SwitchToDashboard = (props) => {
+    console.warn(statusMsg);
+    const myArray = statusMsg.split("-");
+    if (myArray[0] === "Successfully Authenticated") {
+      localStorage.setItem("type", myArray[1])
+      navigate("/dashboard");
+    } else {
+    }
+  };
+
+  const getLogin = async () => {
+    let data = { email, password };
+    const respose = await fetch("https://localhost:7085/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const json = await respose.json();
+    setStatusMsg(json);
+    console.warn(statusMsg);
+    SwitchToDashboard();
+  };
 
   return (
     <div className="h-screen max flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-300 ">
@@ -23,7 +56,7 @@ const Login = () => {
             Login
           </h2>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
+        <form className="mt-8 space-y-6">
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -35,6 +68,8 @@ const Login = () => {
                 name="email"
                 type="email"
                 autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
@@ -49,6 +84,8 @@ const Login = () => {
                 name="password"
                 type="password"
                 autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
@@ -82,9 +119,20 @@ const Login = () => {
             </div>
           </div>
 
+          {statusMsg && (
+            <div
+              class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4"
+              role="alert"
+            >
+              {/* <strong class="font-bold">Oops! </strong> */}
+              <span class="block sm:inline">{statusMsg}</span>
+            </div>
+          )}
+
           <div>
             <button
-              type="submit"
+              type="button"
+              onClick={getLogin}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">

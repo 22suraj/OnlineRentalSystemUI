@@ -1,8 +1,10 @@
+import { render } from "@testing-library/react";
 import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar";
 
 const Dashboard = () => {
   const [openModel, setOpenModel] = useState(false);
+  const [openPlacedModal, setPlacedModal] = useState(false);
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [owner, setOwner] = useState("");
@@ -10,11 +12,15 @@ const Dashboard = () => {
 
   const [products, setProducts] = useState([]);
 
+  const [deleteId, setDeleteId] = useState("");
+
   const getProducts = async () => {
     const respose = await fetch("https:localhost:7085/api/products");
     console.log(respose);
     setProducts(await respose.json());
   };
+
+  const [typeName, setTypeName] = useState(null);
 
   const addProducts = async () => {
     console.warn(title, subtitle, owner, description);
@@ -30,8 +36,43 @@ const Dashboard = () => {
     console.log(respose);
   };
 
+  const deleteProducts = async (productId) => {
+    console.warn(productId);
+    let data = { productId };
+    const respose = await fetch("https://localhost:7085/api/deleteproducts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        id: productId,
+      }),
+    });
+    console.log(respose);
+    getProducts();
+  };
+
+  const addButtonUI = () => {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => {
+            setOpenModel(true);
+          }}
+          class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Add Product
+        </button>
+      </>
+    );
+  };
+
   useEffect(() => {
     getProducts();
+    setTypeName(localStorage.getItem("type"));
+    console.warn(localStorage.getItem("type"));
     // addProducts();
   }, []);
 
@@ -111,15 +152,20 @@ const Dashboard = () => {
                   </a>
                 </li>
                 <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpenModel(true);
-                    }}
-                    class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Add Product
-                  </button>
+                  {/* addhere */}
+                  {typeName === "Vendor" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpenModel(true);
+                      }}
+                      class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-4 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                      Add Product
+                    </button>
+                  ) : (
+                    <div></div>
+                  )}
                 </li>
               </ul>
             </div>
@@ -234,35 +280,102 @@ const Dashboard = () => {
           <div class="grid grid-cols-4 gap-4">
             {products.map((currentElement) => {
               return (
-                <div class="max-w-sm rounded overflow-hidden shadow-lg">
-                  <img
-                    class="w-full"
-                    src="https://stimg.cardekho.com/images/carexteriorimages/930x620/Bentley/Flying-Spur/7776/1587104359393/front-left-side-47.jpg?tr=h-48"
-                    alt="Sunset in the mountains"
-                  />
-                  <div class="px-6 py-4">
-                    <div class="font-bold text-xl mb-2">
-                      {currentElement.title}
+                <>
+                  {openPlacedModal && (
+                    <div class="fixed pin inset-0 z-50 top-20 mx-auto h-96 p-5 border w-96 shadow-lg rounded-md bg-white flex overflow-auto">
+                      <div class="mt-3 text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                          <svg
+                            class="h-6 w-6 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"
+                            ></path>
+                          </svg>
+                        </div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                          Order Successfully Placed!
+                        </h3>
+                        <div class="mt-2 px-7 py-3">
+                          <p class="text-sm text-gray-500">
+                            Thanks fo placing the order from Online Rental System !!
+                          </p>
+                        </div>
+                        <div class="items-center px-4 py-3">
+                          <button
+                            id="ok-btn"
+                            onClick={() => {
+                              setPlacedModal(false);
+                            }}
+                            class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                          >
+                            OK
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <p class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                      Subtitle : {currentElement.subtitle}
-                    </p>
-                    <p class="inline-block bg-gray-200  px-3 py-1 rounded-lg font-semibold text-gray-700 mr-2 mb-2 text-base">
-                      Description : {currentElement.description}
-                    </p>
-                  </div>
-                  <div class="px-6 pt-4 pb-2">
-                    <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                      Owner Name : {currentElement.owner}
-                    </span>
-                    {/* <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  )}
+                  <div class="max-w-sm rounded overflow-hidden shadow-lg">
+                    <img
+                      class="w-full"
+                      src="https://stimg.cardekho.com/images/carexteriorimages/930x620/Bentley/Flying-Spur/7776/1587104359393/front-left-side-47.jpg?tr=h-48"
+                      alt="Sunset in the mountains"
+                    />
+                    <div class="px-6 py-4">
+                      <div className="flex justify-between">
+                        <div class="font-bold text-xl mb-2">
+                          {currentElement.title}
+                        </div>
+                        {typeName == "Vendor" ? (
+                          <button
+                            type="submit"
+                            onClick={() => {
+                              deleteProducts(currentElement.id);
+                            }}
+                            class="bg-red-500 hover:bg-red-700 text-white font-semibold px-2 rounded-full shadow-lg"
+                          >
+                            Delete
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setPlacedModal(true);
+                            }}
+                            class="bg-green-500 hover:bg-green-700 text-white font-semibold px-2 rounded-full shadow-lg"
+                          >
+                            Place Order
+                          </button>
+                        )}
+                      </div>
+
+                      <p class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                        Subtitle : {currentElement.subtitle}
+                      </p>
+                      <p class="inline-block bg-gray-200  px-3 py-1 rounded-lg font-semibold text-gray-700 mr-2 mb-2 text-base">
+                        Description : {currentElement.description}
+                      </p>
+                    </div>
+                    <div class="px-6 pt-4 pb-2">
+                      <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                        Owner Name : {currentElement.owner}
+                      </span>
+
+                      {/* <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
                       #travel
                     </span>
                     <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
                       #winter
                     </span> */}
+                    </div>
                   </div>
-                </div>
+                </>
               );
             })}
           </div>

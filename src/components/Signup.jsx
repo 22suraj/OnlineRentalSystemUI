@@ -1,6 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
+  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [type, setType] = useState("");
+
+  const [statusMsg, setStatusMsg] = useState(null);
+
+  const SwitchToLogin = (props) => {
+    const navigate = useNavigate();
+
+    if (setStatusMsg == "User Successfully Registered") {
+      navigate("/login");
+    }
+  };
+
+  const addUser = async () => {
+    let data = { username, firstName, lastName, password, email, type };
+    const respose = await fetch("https://localhost:7085/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    setStatusMsg(await respose.json());
+  };
+
   return (
     <div className="h-screen max flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-300 ">
       <div className="max-w-md w-full space-y-8 bg-white p-5 rounded-lg drop-shadow-2xl">
@@ -20,7 +51,7 @@ const SignUp = () => {
             Register
           </h2>
         </div>
-        <form className="mt-8 space-y-6" action="#" method="POST">
+        <form className="mt-8 space-y-6 " action="/login" method="GET">
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -31,6 +62,8 @@ const SignUp = () => {
                 id="username"
                 name="username"
                 type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="User Name"
@@ -44,6 +77,8 @@ const SignUp = () => {
                 id="firstname"
                 name="firstname"
                 type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="First Name"
@@ -57,6 +92,8 @@ const SignUp = () => {
                 id="lastname"
                 name="lastname"
                 type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Last Name"
@@ -72,6 +109,8 @@ const SignUp = () => {
                 name="email"
                 type="email"
                 autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
@@ -86,15 +125,22 @@ const SignUp = () => {
                 name="password"
                 type="password"
                 autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
             </div>
           </div>
+
           <div className="self-center">
             <div class=" relative w-full">
-              <select class=" text-gray-500 appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-1.5 pr-8 rounded shadow focus:outline-none focus:shadow-outline">
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                class=" text-gray-500 appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-1.5 pr-8 rounded shadow focus:outline-none focus:shadow-outline"
+              >
                 <option>Select Type</option>
                 <option>Customer</option>
                 <option>Vendor</option>
@@ -111,9 +157,20 @@ const SignUp = () => {
             </div>
           </div>
 
+          {statusMsg && (
+            <div
+              class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4"
+              role="alert"
+            >
+              {/* <strong class="font-bold">Oops! </strong> */}
+              <span class="block sm:inline">{statusMsg}</span>
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
+              onClick={addUser}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
